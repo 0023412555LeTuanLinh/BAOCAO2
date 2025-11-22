@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Swagger Custom Theme Colored JSON & URL</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui.css" />
+
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #000000;
+            --json-id: #e63946;
+            --json-name: #d63384;
+            --json-price: #1a73e8;
+            --request-url: #1a73e8;
+        }
+
+        body.dark {
+            --bg: #000000;
+            --text: #ffffff;
+            --json-id: #ff6b6b;
+            --json-name: #ffae42;
+            --json-price: #4fc3f7;
+            --request-url: #4fc3f7;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        /* Topbar */
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            padding: 16px;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
+            transition: background 0.5s ease;
+        }
+
+        body.dark .topbar {
+            background: rgba(0,0,0,0.6);
+        }
+
+        #modeToggle {
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.5s ease;
+        }
+
+        /* Hide Swagger info */
+        .swagger-ui .info,
+        .swagger-ui .information-container,
+        .topbar-wrapper .download-url-wrapper {
+            display: none !important;
+        }
+
+        /* URL color */
+        .opblock .opblock-summary-path,
+        .opblock .opblock-summary-path a {
+            color: var(--request-url) !important;
+            font-weight: 600;
+        }
+
+        /* Response JSON */
+        .swagger-ui .responses-inner pre,
+        .swagger-ui .highlight-code pre,
+        .swagger-ui .hljs {
+            background: var(--bg) !important;
+            color: var(--text) !important;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        /* JSON keys */
+        .swagger-ui .hljs-attr {
+            color: var(--text) !important;
+            font-weight: 600;
+        }
+
+        /* JSON values: id, name, price */
+        .swagger-ui .hljs-number {
+            color: var(--json-id) !important;
+            font-weight: 600;
+        }
+
+        .swagger-ui .hljs-string {
+            color: var(--json-name) !important;
+            font-weight: 600;
+        }
+
+        .swagger-ui .hljs-literal {
+            color: var(--json-price) !important;
+            font-weight: 600;
+        }
+
+        /* Inputs */
+        input, textarea, select, pre, .model-container {
+            background: var(--bg) !important;
+            color: var(--text) !important;
+            border: 1px solid rgba(200,200,200,0.3);
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar">
+        <button id="modeToggle">🌙 Dark Mode</button>
+    </div>
+    <div id="swagger"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui-bundle.js"></script>
+    <script>
+        const btn = document.getElementById("modeToggle");
+        btn.onclick = () => {
+            document.body.classList.toggle("dark");
+            btn.textContent = document.body.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
+        };
+
+        window.onload = () => {
+            SwaggerUIBundle({
+                url: "/swagger/v1/swagger.json",
+                dom_id: "#swagger",
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIBundle.SwaggerUIStandalonePreset
+                ],
+                layout: "BaseLayout"
+            });
+        };
+    </script>
+</body>
+</html>

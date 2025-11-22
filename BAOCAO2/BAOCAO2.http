@@ -1,0 +1,6 @@
+@BAOCAO2_HostAddress = http://localhost:5137
+
+GET {{BAOCAO2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

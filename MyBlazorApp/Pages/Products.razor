@@ -1,0 +1,88 @@
+﻿@page "/products"
+@using MudBlazor
+@using MyBlazorApp.Models
+@using MyBlazorApp.Components
+@inject HttpClient Http
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudPaper Class="pa-4" Elevation="4">
+    <MudText Typo="Typo.h4" Class="mb-4">Danh sách sản phẩm</MudText>
+
+    <MudButton Color="Color.Primary" OnClick="AddProduct">
+        <MudIcon Icon="@Icons.Material.Filled.Add" /> Thêm sản phẩm
+    </MudButton>
+
+    <MudTable Items="products" Hover="true" Striped="true" Bordered="true" Class="mt-4">
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Tên</MudTh>
+            <MudTh>Giá</MudTh>
+            <MudTh>Hành động</MudTh>
+        </HeaderContent>
+        <RowTemplate Context="item">
+            <MudTd>@item.Id</MudTd>
+            <MudTd>@item.Name</MudTd>
+            <MudTd>@item.Price.ToString("N0")</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="@(() => EditProduct(item))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteProduct(item.Id))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private List<Product> products = new();
+
+    protected override async Task OnInitializedAsync() => await LoadProducts();
+
+    private async Task LoadProducts() =>
+        products = await Http.GetFromJsonAsync<List<Product>>("api/products") ?? new();
+
+    private async Task AddProduct()
+    {
+        var parameters = new DialogParameters { ["Product"] = new Product() };
+        var dialog = DialogService.Show<ProductDialog>("Thêm sản phẩm", parameters);
+
+        var result = await dialog.Result; // IDialogResult
+        if (!result.Canceled)
+        {
+            var product = (Product)result.Data!;
+            await Http.PostAsJsonAsync("api/products", product);
+            Snackbar.Add("Đã thêm sản phẩm!", Severity.Success);
+            await LoadProducts();
+        }
+    }
+
+    private async Task EditProduct(Product item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["Product"] = new Product { Id = item.Id, Name = item.Name, Price = item.Price }
+            };
+        var dialog = DialogService.Show<ProductDialog>("Sửa sản phẩm", parameters);
+
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var updated = (Product)result.Data!;
+            await Http.PutAsJsonAsync($"api/products/{updated.Id}", updated);
+            Snackbar.Add("Đã cập nhật sản phẩm!", Severity.Success);
+            await LoadProducts();
+        }
+    }
+
+    private async Task DeleteProduct(int id)
+    {
+        bool? confirmed = await DialogService.ShowMessageBox(
+            "Xác nhận", "Bạn có chắc muốn xóa sản phẩm này?", yesText: "Có", noText: "Không");
+
+        if (confirmed == true)
+        {
+            await Http.DeleteAsync($"api/products/{id}");
+            Snackbar.Add("Đã xóa sản phẩm!", Severity.Success);
+            await LoadProducts();
+        }
+    }
+}
